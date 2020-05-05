@@ -1,0 +1,31 @@
+{
+  "name": "rwt-file-tabs",
+  "version": "1.0.0",
+  "description": "Switch between active views using a file-tab interface, a W3C standard Web Component",
+  "author": "Read Write Tools",
+  "license": "MIT",
+  "module": "rwt-file-tabs.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/readwritetools/rwt-file-tabs.git"
+  },
+  "scripts": {
+    "bump-version": "npm version patch && git push && git push --tags"
+  },
+  "keywords": [
+    "web-component",
+    "custom-element",
+    "html-template",
+    "shadow-dom",
+    "readwritetools"
+  ],
+  "bugs": {
+    "url": "https://github.com/readwritetools/rwt-file-tabs/issues"
+  },
+  "homepage": "https://hub.readwritetools.com/components/file-tabs.blue",
+  "files": [
+    "rwt-file-tabs.blue",
+    "rwt-file-tabs.css",
+    "rwt-file-tabs.js"
+  ]
+}

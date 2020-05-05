@@ -1,0 +1,24 @@
+!blue 2.0
+//=============================================================================
+//
+//  File:         /node_modules/rwt-file-tabs/rwt-file-tabs.blue
+//  Language:     Blue-phrase
+//  Copyright:    Read Write Tools © 2020
+//  License:      MIT
+//  Initial date: May 2, 2020
+//  Contents:     Activate view using a file-tab interface
+//
+//=============================================================================
+
+!option --fragment
+
+div #shell {
+	div #tab-box {
+		div #scroll-box <<slot *name=tabitem>>
+	}
+	div #nav-box {
+		button #nav-left %25C0		// ◀ 
+		button #nav-right %25B6 	// ▶
+	}	
+}
+		
