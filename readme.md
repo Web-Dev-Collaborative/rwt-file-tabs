@@ -103,11 +103,17 @@ of it.
 <script src='/node_modules/rwt-file-tabs/rwt-file-tabs.js' type=module></script>
 ```
 
-   * Add the component tag somewhere on the page, configuring it with two optional
+   * Add the component tag somewhere on the page, configuring it with these optional
       attributes:
 
       * `closable` This optional attribute instructs the component to add an 'x' button to
          each dynamically added tab, allowing the user to remove the tab.
+      * `scroll-side={left|right}` When the space occupied by the tabs is too large,
+         scroll buttons are enabled. They can be positioned to the `left` or the `right` of
+         the tabs.
+      * `anchor-side={left|right}` When the space occupied by the tabs is less than the
+         width of the component, the unoccupied space can be anchored to the `left` or to
+         the `right` of the tabs.
       * `role=navigation` This web accessible ARIA attribute tells readers that the
          component is used for navigation.
 
@@ -141,6 +147,12 @@ removed using these methods.
 	<dd>Returns an object with two values: <code>currentTabId</code> and <code>currentTabValue</code>.</dd>
 	<dt><code>setCurrentTab(id)</code></dt>
 	<dd>Changes the current tab to be the one identified with <code>id</code>.</dd>
+	<dt><code>getScrollableOverflow()</code></dt>
+	<dd>The size, in pixels, of the tabs that are hidden when the component isn't wide enough for all of them.</dd>
+	<dt><code>setScrollPosition(left)</code></dt>
+	<dd>The <code>left</code> parameter is the number of pixels to programmatically scroll the tabs. It should be an integer from 0 to <code>scrollableOverflow</code>.</dd>
+	<dt><code>scrollMaxRight()</code></dt>
+	<dd>Scroll the tabs all the way to the right. This is only meaningful when there is scrollable overflow.</dd>
 </dl>
 
 ### Events
@@ -198,6 +210,59 @@ rwt-file-tabs {
     --accent-background3: var(--medium-black);
     --accent-background4: var(--gray);
 }
+```
+
+### Vertically oriented tabs
+
+The component can be oriented vertically by wrapping it in a positioned element
+and using a CSS transform.  Here's an example of how to do it:
+
+#### HTML
+
+```html
+<div id=viewtabs-area>         
+    <rwt-file-tabs id=viewtabs scroll-side=left anchor-side=right>
+        <button id=id4 slot=tabitem title='Delta view'>Delta</button>
+        <button id=id3 slot=tabitem title='Gamma view'>Gamma</button>
+        <button id=id2 slot=tabitem title='Beta view'>Beta</button>
+        <button id=id1 slot=tabitem title='Alpha view'>Alpha</button>
+    </rwt-file-tabs>
+</div>
+```
+
+#### CSS
+
+```css
+div#viewtabs-area {
+    position: absolute;
+    top: 2.3rem;
+    left: 0;
+    bottom: 0;
+    width: 2.0rem;
+    border-top: 1px solid #000;
+    border-bottom: 1px solid #000;
+}
+#viewtabs {
+    position: absolute;
+    transform: rotate(-90deg);
+    transform-origin: left top;
+    width: 34rem; /* JavaScript will override */
+    top: 34rem;   /* JavaScript will override */
+}
+```
+
+#### JavaScript
+
+```js
+function onResize() {
+    var viewTabsArea = document.getElementById('viewtabs-area');
+    var viewTabs = document.getElementById('viewtabs');
+    var height = viewTabsArea.offsetHeight;
+    viewTabs.style.width = `${height}px`;
+    viewTabs.style.top = `${height}px`;
+}
+
+window.addEventListener('resize', onResize);
 ```
 
 ### License
