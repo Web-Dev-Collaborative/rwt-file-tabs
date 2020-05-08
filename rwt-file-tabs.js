@@ -61,6 +61,7 @@ export default class RwtFileTabs extends HTMLElement {
 		this.identifyChildren();
 		this.registerEventListeners();
 		this.configureSlottedTabs();
+		this.onResize();
 		this.sendComponentLoaded();
 	}
 
@@ -284,6 +285,25 @@ export default class RwtFileTabs extends HTMLElement {
 		this.addCloseButtonToTab(elTab);
 	}
 	
+	getScrollableOverflow() {
+		return this.scrollableOverflow;
+	}
+	
+	// number of pixels scrolled from the left
+	// Provide a positive integer 
+	setScrollPosition(left) {
+		var newLeft = 0 - left;
+		if (newLeft < 0) 
+			this.scrollBox.style.left = `${newLeft}px`;
+		else if (this.scrollableOverflow + newLeft >= 0)
+			this.scrollBox.style.left = `${newLeft}px`;
+	}
+	
+	scrollMaxRight() {
+		var left = 0 - this.scrollableOverflow;
+		this.scrollBox.style.left = `${left}px`;
+	}
+	
 	//-------------------------------------------------------------------------
 	// private helpers
 	//-------------------------------------------------------------------------
@@ -340,25 +360,69 @@ export default class RwtFileTabs extends HTMLElement {
 	//-------------------------------------------------------------------------
 	// component events
 	//-------------------------------------------------------------------------
-	
+
 	// recompute the amount of overflow
 	// tabBox varies in size based on how many tabs it currently has
 	onResize(entries) {
-		// show or hide left/right scrollers as needed
+		// does any extra space, not occupied by tabs, go on the right or left side? 
+		var anchorSide = this.hasAttribute('anchor-side') ? this.getAttribute('anchor-side') : 'right';
+
+		var extraPixels = 0;
+
+		// show left/right scrollers
 		if (this.scrollBox.offsetWidth <= this.shell.offsetWidth) {
 			this.navBox.style.display = 'none';
 			this.scrollBox.style.left = '0px';
-			var newTabBoxWidth = this.shell.offsetWidth;
+			var newTabBoxWidth = this.scrollBox.offsetWidth;
+			this.tabBox.style.width = `${newTabBoxWidth}px`;
+
+			if (anchorSide == 'right') {
+				extraPixels = this.shell.offsetWidth - newTabBoxWidth;
+			}
 		}
+		// hide left/right scrollers
 		else {
 			this.navBox.style.display = 'block';
 			var newTabBoxWidth = this.shell.offsetWidth - this.navBox.offsetWidth;
-		}
-		this.tabBox.style.width = `${newTabBoxWidth}px`;
+			this.tabBox.style.width = `${newTabBoxWidth}px`;
 
+			// when enlarging the window, reposition the scrollBox's left to use the newly available space
+			if (this.scrollBox.offsetLeft < 0) {
+				var repositionedLeft = this.tabBox.offsetWidth - this.scrollBox.offsetWidth;
+				if (repositionedLeft < 0) {
+					this.scrollBox.style.left = `${repositionedLeft}px`;
+				}
+			}
+		}
+		
 		this.scrollableOverflow = this.scrollBox.offsetWidth - newTabBoxWidth;
 		if (this.scrollableOverflow < 0)
 			this.scrollableOverflow = 0;
+		
+		this.changeScrollSide(extraPixels);
+	}
+	
+	// Position the scroller buttons to the left or right of the tabs 
+	//> extraPixels is 0 when the space occupied by the tabs is more than the space available for them
+	//> extraPixels is a positive integer when there is more space available than is needed by the tabs
+	changeScrollSide(extraPixels) {
+		// do the left and right scroll buttons, when needed, go on the right or left side?
+		var scrollSide = this.hasAttribute('scroll-side') ? this.getAttribute('scroll-side') : 'right';
+		
+		if (scrollSide == 'left') {
+			var firstBoxLeft = `${extraPixels}px`;
+			this.navBox.style.left = firstBoxLeft;
+			
+			var secondBoxLeft = extraPixels + this.navBox.offsetWidth;
+			this.tabBox.style.left = `${secondBoxLeft}px`;
+		}
+		else { // scrollSide == 'right'
+			var firstBoxLeft = `${extraPixels}px`;
+			this.tabBox.style.left = firstBoxLeft;
+			
+			var secondBoxLeft = extraPixels + this.tabBox.offsetWidth;
+			this.navBox.style.left = `${secondBoxLeft}px`;
+		}			
 	}
 	
 	onMousedownNavLeft(event) {
