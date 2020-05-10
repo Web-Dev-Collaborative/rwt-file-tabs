@@ -169,6 +169,7 @@ export default class RwtFileTabs extends HTMLElement {
 		this.navLeft.addEventListener('mousedown', this.onMousedownNavLeft.bind(this));
 		this.navRight.addEventListener('mousedown', this.onMousedownNavRight.bind(this));
 		document.addEventListener('mouseup', this.onMouseup.bind(this));
+		this.tabBox.addEventListener('wheel', this.onWheelTabBox.bind(this));
 	}	
 
 	// If the developer has slotted in tabs, add event listeners for clicking on the tab
@@ -486,7 +487,22 @@ export default class RwtFileTabs extends HTMLElement {
 		var rc = this.sendTabClosing(elTab);
 		if (rc == true)
 			this.removeTab(elTab.id);
+	}
 	
+	onWheelTabBox(event) {
+		var scrollIncrement = Math.floor(this.scrollableOverflow / 10);
+		scrollIncrement = Math.max(scrollIncrement, 1);
+			
+		if (event.deltaY > 0) {
+			var newLeft = this.scrollBox.offsetLeft + scrollIncrement;
+			if (newLeft < 0)
+				this.scrollBox.style.left = `${newLeft}px`;
+		}
+		else {
+			var newLeft = this.scrollBox.offsetLeft - scrollIncrement;
+			if (this.scrollableOverflow + newLeft >= 0)
+				this.scrollBox.style.left = `${newLeft}px`;
+		}
 	}
 }
 
