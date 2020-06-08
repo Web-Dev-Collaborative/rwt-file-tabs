@@ -192,6 +192,22 @@ export default class RwtFileTabs extends HTMLElement {
 		};
 	}
 	
+	// Each tab should have a text node, and may have an inner button node (the 'x' button for removing the tab)
+	// This function will return the value of the text node only
+	//> A button element with class='tab-button'
+	//< String
+	getTabValue(elTab) {
+		if (elTab.constructor.name != 'HTMLButtonElement')
+			return '';
+
+		var currentTabValue = '';
+		for (let i=0; i < elTab.childNodes.length; i++) {
+			if (elTab.childNodes[i].nodeName == '#text')
+				currentTabValue += elTab.childNodes[i].nodeValue;
+		}
+		return currentTabValue;
+	}
+	
 	setCurrentTab(id) {
 		// special case, when removing the last tab
 		if (id == null) {
@@ -212,7 +228,7 @@ export default class RwtFileTabs extends HTMLElement {
 			if (el.id == id) {
 				el.classList.add('current-tab');
 				this.currentTabId = id;
-				this.currentTabValue = el.childNodes[0].nodeValue;
+				this.currentTabValue = this.getTabValue(el);
 			}
 			else
 				el.classList.remove('current-tab');
@@ -225,7 +241,7 @@ export default class RwtFileTabs extends HTMLElement {
 			if (el.id == id) {
 				el.classList.add('current-tab');
 				this.currentTabId = id;
-				this.currentTabValue = el.childNodes[0].nodeValue;
+				this.currentTabValue = this.getTabValue(el);
 			}
 			else
 				el.classList.remove('current-tab');
