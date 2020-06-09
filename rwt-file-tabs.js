@@ -368,8 +368,9 @@ export default class RwtFileTabs extends HTMLElement {
 			cancelable: true,		// user can call preventDefault to cancel the close
 			detail: {
 				currentTabId: elTab.id,
-				currentTabValue: elTab.childNodes[0].nodeValue
-			} };
+				currentTabValue: this.getTabValue(elTab)
+			}
+		};
 		var customEvent = new CustomEvent('tab-closing', eventInit);
 		return this.dispatchEvent(customEvent);
 	}
@@ -497,6 +498,7 @@ export default class RwtFileTabs extends HTMLElement {
 	
 	// user clicked on a tab's '×' button to close it
 	onClickClose(event) {
+		event.stopPropagation();
 		var elTab = event.target.parentElement;
 		
 		// give the document a chance to decide whether or not to remove the tab
