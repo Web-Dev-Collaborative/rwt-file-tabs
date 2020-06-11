@@ -11,9 +11,11 @@
 
 export default class RwtFileTabs extends HTMLElement {
 	
-	static elementInstance = 1;		// The elementInstance is used to distinguish between multiple instances of this custom element
-	static htmlTemplate = null;		// retrieved from the server once, and used by all instances
-	static cssText = null;			// retrieved from the server once, and used by all instances
+	static elementInstance = 1;
+	static htmlURL  = '/node_modules/rwt-file-tabs/rwt-file-tabs.blue';
+	static cssURL   = '/node_modules/rwt-file-tabs/rwt-file-tabs.css';
+	static htmlText = null;
+	static cssText  = null;
 	
 	constructor() {
 		super();
@@ -40,113 +42,95 @@ export default class RwtFileTabs extends HTMLElement {
 	}
 
 	//-------------------------------------------------------------------------
-	// customElement life cycle callbacks
+	// customElement life cycle callback
 	//-------------------------------------------------------------------------
 	async connectedCallback() {		
-		// guard against possible call after this has been disconnected
 		if (!this.isConnected)
 			return;
 
-		var htmlTemplate = await this.getTemplate();
-		var htmlFragment = this.convertTemplateToFragment(htmlTemplate);
-		
-		var cssText = await this.getCssText();
-		var styleElement = this.convertCssTextToElement(cssText);
+		try {
+			var htmlFragment = await this.getHtmlFragment();
+			var styleElement = await this.getCssStyleElement();
 
-		// append the HTML and CSS to the custom element's shadow root
-		this.attachShadow({mode: 'open'});
-		this.shadowRoot.appendChild(htmlFragment); 
-		this.shadowRoot.appendChild(styleElement); 
-		
-		this.identifyChildren();
-		this.registerEventListeners();
-		this.configureSlottedTabs();
-		this.onResize();
-		this.sendComponentLoaded();
+			this.attachShadow({mode: 'open'});
+			this.shadowRoot.appendChild(htmlFragment); 
+			this.shadowRoot.appendChild(styleElement); 
+			
+			this.identifyChildren();
+			this.registerEventListeners();
+			this.configureSlottedTabs();
+			this.onResize();
+			this.sendComponentLoaded();
+		}
+		catch (err) {
+			console.log(err.message);
+		}
 	}
 
 	//-------------------------------------------------------------------------
 	// initialization
 	//-------------------------------------------------------------------------
 
-	//< returns a promise to the htmlTemplate 
-	getTemplate() {
-		return new Promise((resolve, reject) => {
-			// setup the completion event listener
-			document.addEventListener('html-template-ready', function(e) {
-				resolve(RwtFileTabs.htmlTemplate);
+
+	// Only the first instance of this component fetches the HTML text from the server.
+	// All other instances wait for it to issue an 'html-template-ready' event.
+	// If this function is called when the first instance is still pending,
+	// it must wait upon receipt of the 'html-template-ready' event.
+	// If this function is called after the first instance has already fetched the HTML text,
+	// it will immediately issue its own 'html-template-ready' event.
+	// When the event is received, create an HTMLTemplateElement from the fetched HTML text,
+	// and resolve the promise with a DocumentFragment.
+	getHtmlFragment() {
+		return new Promise(async (resolve, reject) => {
+			var htmlTemplateReady = `RwtFileTabs-html-template-ready`;
+			
+			document.addEventListener(htmlTemplateReady, () => {
+				var template = document.createElement('template');
+				template.innerHTML = RwtFileTabs.htmlText;
+				resolve(template.content);
 			});
 			
-			// perform the work that will eventually trigger the completion event
-			this.fetchTemplate();
+			if (this.instance == 1) {
+				var response = await fetch(RwtFileTabs.htmlURL, {cache: "no-cache", referrerPolicy: 'no-referrer'});
+				if (response.status != 200 && response.status != 304) {
+					reject(new Error(`Request for ${RwtFileTabs.htmlURL} returned with ${response.status}`));
+					return;
+				}
+				RwtFileTabs.htmlText = await response.text();
+				document.dispatchEvent(new Event(htmlTemplateReady));
+			}
+			else if (RwtFileTabs.htmlText != null) {
+				document.dispatchEvent(new Event(htmlTemplateReady));
+			}
 		});
 	}
 	
-	//^ Fetch the HTML template from the server, but only on the first instance.
-	//  All subsequent instances await the 'html-template-ready' event
-	//< returns an HTML text fragment
-	//< returns without getting the template if server does not respond with 200 or 304
-	async fetchTemplate() {
-		if (this.instance == 1) {
-			var response = await fetch('/node_modules/rwt-file-tabs/rwt-file-tabs.blue', {cache: "no-cache", referrerPolicy: 'no-referrer'});
-			if (response.status != 200 && response.status != 304)
-				return null;
-			RwtFileTabs.htmlTemplate = await response.text();
-			document.dispatchEvent(new Event('html-template-ready'));
-		}
-		else if (RwtFileTabs.htmlTemplate == null) {
-			 // Nothing to do. Caller must wait for 'html-template-ready' event to be received
-		}
-		else { // (RwtFileTabs.htmlTemplate != null)
-			document.dispatchEvent(new Event('html-template-ready'));
-		}
-	}
-	
-	// create a template and turn its content into a document fragment
-	convertTemplateToFragment(htmlTemplate) {
-		var template = document.createElement('template');
-		template.innerHTML = htmlTemplate;
-		return template.content;
-	}	
-	
-	//< returns a promise to the CSS Text 
-	getCssText() {
-		return new Promise((resolve, reject) => {
-			// setup the completion event listener
-			document.addEventListener('css-text-ready', function(e) {
-				resolve(RwtFileTabs.cssText);
+	// Use the same pattern to fetch the CSS text from the server
+	// When the 'css-text-ready' event is received, create an HTMLStyleElement from the fetched CSS text,
+	// and resolve the promise with that element.
+	getCssStyleElement() {
+		return new Promise(async (resolve, reject) => {
+			var cssTextReady = `RwtFileTabs-css-text-ready`;
+
+			document.addEventListener(cssTextReady, () => {
+				var styleElement = document.createElement('style');
+				styleElement.innerHTML = RwtFileTabs.cssText;
+				resolve(styleElement);
 			});
 			
-			// perform the work that will eventually trigger the completion event
-			this.fetchCSS();
+			if (this.instance == 1) {
+				var response = await fetch(RwtFileTabs.cssURL, {cache: "no-cache", referrerPolicy: 'no-referrer'});
+				if (response.status != 200 && response.status != 304) {
+					reject(new Error(`Request for ${RwtFileTabs.cssURL} returned with ${response.status}`));
+					return;
+				}
+				RwtFileTabs.cssText = await response.text();
+				document.dispatchEvent(new Event(cssTextReady));
+			}
+			else if (RwtFileTabs.cssText != null) {
+				document.dispatchEvent(new Event(cssTextReady));
+			}
 		});
-	}
-		
-	//^ Fetch the CSS text from the server, but only on the first instance.
-	//  All subsequent instances await the 'css-text-ready' event
-	//< returns CSS declarations
-	//< returns null if server does not respond with 200 or 304
-	async fetchCSS() {
-		if (this.instance == 1) {
-			var response = await fetch('/node_modules/rwt-file-tabs/rwt-file-tabs.css', {cache: "no-cache", referrerPolicy: 'no-referrer'});
-			if (response.status != 200 && response.status != 304)
-				return null;
-			RwtFileTabs.cssText = await response.text();
-			document.dispatchEvent(new Event('css-text-ready'));
-		}
-		else if (RwtFileTabs.cssText == null) {
-			 // Nothing to do. Caller must wait for 'css-text-ready' event to be received
-		}
-		else { // (RwtFileTabs.cssText != null)
-			document.dispatchEvent(new Event('css-text-ready'));
-		}
-	}	
-	
-	// create a <style> element from CSS text 
-	convertCssTextToElement(cssText) {
-		var styleElement = document.createElement('style');
-		styleElement.innerHTML = cssText;
-		return styleElement;
 	}
 	
 	//^ Identify this component's children
@@ -169,7 +153,6 @@ export default class RwtFileTabs extends HTMLElement {
 		this.navLeft.addEventListener('mousedown', this.onMousedownNavLeft.bind(this));
 		this.navRight.addEventListener('mousedown', this.onMousedownNavRight.bind(this));
 		document.addEventListener('mouseup', this.onMouseup.bind(this));
-		this.tabBox.addEventListener('wheel', this.onWheelTabBox.bind(this));
 	}	
 
 	// If the developer has slotted in tabs, add event listeners for clicking on the tab
@@ -192,22 +175,6 @@ export default class RwtFileTabs extends HTMLElement {
 		};
 	}
 	
-	// Each tab should have a text node, and may have an inner button node (the 'x' button for removing the tab)
-	// This function will return the value of the text node only
-	//> A button element with class='tab-button'
-	//< String
-	getTabValue(elTab) {
-		if (elTab.constructor.name != 'HTMLButtonElement')
-			return '';
-
-		var currentTabValue = '';
-		for (let i=0; i < elTab.childNodes.length; i++) {
-			if (elTab.childNodes[i].nodeName == '#text')
-				currentTabValue += elTab.childNodes[i].nodeValue;
-		}
-		return currentTabValue;
-	}
-	
 	setCurrentTab(id) {
 		// special case, when removing the last tab
 		if (id == null) {
@@ -228,7 +195,7 @@ export default class RwtFileTabs extends HTMLElement {
 			if (el.id == id) {
 				el.classList.add('current-tab');
 				this.currentTabId = id;
-				this.currentTabValue = this.getTabValue(el);
+				this.currentTabValue = el.childNodes[0].nodeValue;
 			}
 			else
 				el.classList.remove('current-tab');
@@ -241,7 +208,7 @@ export default class RwtFileTabs extends HTMLElement {
 			if (el.id == id) {
 				el.classList.add('current-tab');
 				this.currentTabId = id;
-				this.currentTabValue = this.getTabValue(el);
+				this.currentTabValue = el.childNodes[0].nodeValue;
 			}
 			else
 				el.classList.remove('current-tab');
@@ -368,9 +335,8 @@ export default class RwtFileTabs extends HTMLElement {
 			cancelable: true,		// user can call preventDefault to cancel the close
 			detail: {
 				currentTabId: elTab.id,
-				currentTabValue: this.getTabValue(elTab)
-			}
-		};
+				currentTabValue: elTab.childNodes[0].nodeValue
+			} };
 		var customEvent = new CustomEvent('tab-closing', eventInit);
 		return this.dispatchEvent(customEvent);
 	}
@@ -498,29 +464,13 @@ export default class RwtFileTabs extends HTMLElement {
 	
 	// user clicked on a tab's '×' button to close it
 	onClickClose(event) {
-		event.stopPropagation();
 		var elTab = event.target.parentElement;
 		
 		// give the document a chance to decide whether or not to remove the tab
 		var rc = this.sendTabClosing(elTab);
 		if (rc == true)
 			this.removeTab(elTab.id);
-	}
 	
-	onWheelTabBox(event) {
-		var scrollIncrement = Math.floor(this.scrollableOverflow / 10);
-		scrollIncrement = Math.max(scrollIncrement, 1);
-			
-		if (event.deltaY > 0) {
-			var newLeft = this.scrollBox.offsetLeft + scrollIncrement;
-			if (newLeft < 0)
-				this.scrollBox.style.left = `${newLeft}px`;
-		}
-		else {
-			var newLeft = this.scrollBox.offsetLeft - scrollIncrement;
-			if (this.scrollableOverflow + newLeft >= 0)
-				this.scrollBox.style.left = `${newLeft}px`;
-		}
 	}
 }
 
