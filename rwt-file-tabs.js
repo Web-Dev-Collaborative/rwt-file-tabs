@@ -233,6 +233,18 @@ export default class RwtFileTabs extends HTMLElement {
 		this.sendTabActiviated();
 	}
 	
+	removeAllTabs() {
+		// dynamically added tabs
+		var tabElements = this.shadowRoot.querySelectorAll('#scroll-box button');
+		for (let i=0; i < tabElements.length; i++)
+			tabElements[i].remove();
+		
+		// slotted tabs
+		tabElements = this.querySelectorAll('button');
+		for (let i=0; i < tabElements.length; i++)
+			tabElements[i].remove();
+	}
+
 	removeTab(id) {
 		// sanity, make sure such an ID exists
 		if (this.shadowRoot.getElementById(id) == null && document.getElementById(id) == null)
