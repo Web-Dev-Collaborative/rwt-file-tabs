@@ -153,6 +153,7 @@ export default class RwtFileTabs extends HTMLElement {
 		this.navLeft.addEventListener('mousedown', this.onMousedownNavLeft.bind(this));
 		this.navRight.addEventListener('mousedown', this.onMousedownNavRight.bind(this));
 		document.addEventListener('mouseup', this.onMouseup.bind(this));
+		this.tabBox.addEventListener('wheel', this.onWheelTabBox.bind(this));
 	}	
 
 	// If the developer has slotted in tabs, add event listeners for clicking on the tab
@@ -175,6 +176,22 @@ export default class RwtFileTabs extends HTMLElement {
 		};
 	}
 	
+	// Each tab should have a text node, and may have an inner button node (the 'x' button for removing the tab)
+	// This function will return the value of the text node only
+	//> A button element with class='tab-button'
+	//< String
+	getTabValue(elTab) {
+		if (elTab.constructor.name != 'HTMLButtonElement')
+			return '';
+
+		var currentTabValue = '';
+		for (let i=0; i < elTab.childNodes.length; i++) {
+			if (elTab.childNodes[i].nodeName == '#text')
+				currentTabValue += elTab.childNodes[i].nodeValue;
+		}
+		return currentTabValue;
+	}
+	
 	setCurrentTab(id) {
 		// special case, when removing the last tab
 		if (id == null) {
@@ -195,8 +212,7 @@ export default class RwtFileTabs extends HTMLElement {
 			if (el.id == id) {
 				el.classList.add('current-tab');
 				this.currentTabId = id;
-				this.currentTabValue = el.childNodes[0].nodeValue;
-			}
+				this.currentTabValue = this.getTabValue(el);			}
 			else
 				el.classList.remove('current-tab');
 		}
@@ -208,8 +224,7 @@ export default class RwtFileTabs extends HTMLElement {
 			if (el.id == id) {
 				el.classList.add('current-tab');
 				this.currentTabId = id;
-				this.currentTabValue = el.childNodes[0].nodeValue;
-			}
+				this.currentTabValue = this.getTabValue(el);			}
 			else
 				el.classList.remove('current-tab');
 		}
@@ -335,8 +350,9 @@ export default class RwtFileTabs extends HTMLElement {
 			cancelable: true,		// user can call preventDefault to cancel the close
 			detail: {
 				currentTabId: elTab.id,
-				currentTabValue: elTab.childNodes[0].nodeValue
-			} };
+				currentTabValue: this.getTabValue(elTab)
+			}
+		};
 		var customEvent = new CustomEvent('tab-closing', eventInit);
 		return this.dispatchEvent(customEvent);
 	}
@@ -464,6 +480,7 @@ export default class RwtFileTabs extends HTMLElement {
 	
 	// user clicked on a tab's '×' button to close it
 	onClickClose(event) {
+		event.stopPropagation();
 		var elTab = event.target.parentElement;
 		
 		// give the document a chance to decide whether or not to remove the tab
@@ -471,6 +488,22 @@ export default class RwtFileTabs extends HTMLElement {
 		if (rc == true)
 			this.removeTab(elTab.id);
 	
+	}
+	
+	onWheelTabBox(event) {
+		var scrollIncrement = Math.floor(this.scrollableOverflow / 10);
+		scrollIncrement = Math.max(scrollIncrement, 1);
+			
+		if (event.deltaY > 0) {
+			var newLeft = this.scrollBox.offsetLeft + scrollIncrement;
+			if (newLeft < 0)
+				this.scrollBox.style.left = `${newLeft}px`;
+		}
+		else {
+			var newLeft = this.scrollBox.offsetLeft - scrollIncrement;
+			if (this.scrollableOverflow + newLeft >= 0)
+				this.scrollBox.style.left = `${newLeft}px`;
+		}
 	}
 }
 
