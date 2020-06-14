@@ -20,6 +20,9 @@ export default class RwtFileTabs extends HTMLElement {
 	constructor() {
 		super();
 				
+		// guard
+		this.isComponentLoaded = false;
+		
 		// child elements
 		this.shell = null;
 		this.tabBox = null;
@@ -337,9 +340,20 @@ export default class RwtFileTabs extends HTMLElement {
 	//-------------------------------------------------------------------------
 	// component messages
 	//-------------------------------------------------------------------------
+
+	// A Promise that resolves when the component is loaded
+	waitOnLoading() {
+		return new Promise((resolve) => {
+			if (this.isComponentLoaded == true)
+				resolve();
+			else
+				this.addEventListener('component-loaded', resolve);
+		});
+	}
 	
 	// inform the document's custom element that it is ready for programmatic use 
 	sendComponentLoaded() {
+		this.isComponentLoaded = true;
 		this.dispatchEvent(new Event('component-loaded', {bubbles: true}));
 	}
 
