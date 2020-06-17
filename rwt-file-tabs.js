@@ -501,7 +501,7 @@ export default class RwtFileTabs extends HTMLElement {
 	}
 	
 	onClickTab(event) {
-		this.setCurrentTab(event.target.id);
+		this.setCurrentTab(event.currentTarget.id);
 	}
 	
 	// user clicked on a tab's '×' button to close it
