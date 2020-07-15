@@ -9,19 +9,31 @@
 //
 //=============================================================================
 
+const Static = {
+	componentName:    'rwt-file-tabs',
+	elementInstance:  1,
+	htmlURL:          '/node_modules/rwt-file-tabs/rwt-file-tabs.blue',
+	cssURL:           '/node_modules/rwt-file-tabs/rwt-file-tabs.css',
+	htmlText:         null,
+	cssText:          null
+};
+
+Object.seal(Static);
+
 export default class RwtFileTabs extends HTMLElement {
-	
-	static elementInstance = 1;
-	static htmlURL  = '/node_modules/rwt-file-tabs/rwt-file-tabs.blue';
-	static cssURL   = '/node_modules/rwt-file-tabs/rwt-file-tabs.css';
-	static htmlText = null;
-	static cssText  = null;
 	
 	constructor() {
 		super();
 				
-		// guard
+		// guardrails
+		this.instance = Static.elementInstance++;
 		this.isComponentLoaded = false;
+		
+		// properties
+		this.repeatingScroll = null;	// press and hold timer
+		this.scrollableOverflow = 0;	// number of pixels available to scroll
+		this.currentTabId = null;		// element ID of the current tab
+		this.currentTabValue = null;	// text of the current tab
 		
 		// child elements
 		this.shell = null;
@@ -33,13 +45,6 @@ export default class RwtFileTabs extends HTMLElement {
 
 		// observer
 		this.resizeObserver = null;
-		
-		// properties
-		this.instance = RwtFileTabs.elementInstance++;
-		this.repeatingScroll = null;	// press and hold timer
-		this.scrollableOverflow = 0;	// number of pixels available to scroll
-		this.currentTabId = null;		// element ID of the current tab
-		this.currentTabValue = null;	// text of the current tab
 		
 		Object.seal(this);
 	}
@@ -85,24 +90,24 @@ export default class RwtFileTabs extends HTMLElement {
 	// and resolve the promise with a DocumentFragment.
 	getHtmlFragment() {
 		return new Promise(async (resolve, reject) => {
-			var htmlTemplateReady = `RwtFileTabs-html-template-ready`;
+			var htmlTemplateReady = `${Static.componentName}-html-template-ready`;
 			
 			document.addEventListener(htmlTemplateReady, () => {
 				var template = document.createElement('template');
-				template.innerHTML = RwtFileTabs.htmlText;
+				template.innerHTML = Static.htmlText;
 				resolve(template.content);
 			});
 			
 			if (this.instance == 1) {
-				var response = await fetch(RwtFileTabs.htmlURL, {cache: "no-cache", referrerPolicy: 'no-referrer'});
+				var response = await fetch(Static.htmlURL, {cache: "no-cache", referrerPolicy: 'no-referrer'});
 				if (response.status != 200 && response.status != 304) {
-					reject(new Error(`Request for ${RwtFileTabs.htmlURL} returned with ${response.status}`));
+					reject(new Error(`Request for ${Static.htmlURL} returned with ${response.status}`));
 					return;
 				}
-				RwtFileTabs.htmlText = await response.text();
+				Static.htmlText = await response.text();
 				document.dispatchEvent(new Event(htmlTemplateReady));
 			}
-			else if (RwtFileTabs.htmlText != null) {
+			else if (Static.htmlText != null) {
 				document.dispatchEvent(new Event(htmlTemplateReady));
 			}
 		});
@@ -113,24 +118,24 @@ export default class RwtFileTabs extends HTMLElement {
 	// and resolve the promise with that element.
 	getCssStyleElement() {
 		return new Promise(async (resolve, reject) => {
-			var cssTextReady = `RwtFileTabs-css-text-ready`;
+			var cssTextReady = `${Static.componentName}-css-text-ready`;
 
 			document.addEventListener(cssTextReady, () => {
 				var styleElement = document.createElement('style');
-				styleElement.innerHTML = RwtFileTabs.cssText;
+				styleElement.innerHTML = Static.cssText;
 				resolve(styleElement);
 			});
 			
 			if (this.instance == 1) {
-				var response = await fetch(RwtFileTabs.cssURL, {cache: "no-cache", referrerPolicy: 'no-referrer'});
+				var response = await fetch(Static.cssURL, {cache: "no-cache", referrerPolicy: 'no-referrer'});
 				if (response.status != 200 && response.status != 304) {
-					reject(new Error(`Request for ${RwtFileTabs.cssURL} returned with ${response.status}`));
+					reject(new Error(`Request for ${Static.cssURL} returned with ${response.status}`));
 					return;
 				}
-				RwtFileTabs.cssText = await response.text();
+				Static.cssText = await response.text();
 				document.dispatchEvent(new Event(cssTextReady));
 			}
-			else if (RwtFileTabs.cssText != null) {
+			else if (Static.cssText != null) {
 				document.dispatchEvent(new Event(cssTextReady));
 			}
 		});
@@ -159,7 +164,7 @@ export default class RwtFileTabs extends HTMLElement {
 		this.tabBox.addEventListener('wheel', this.onWheelTabBox.bind(this));
 	}	
 
-	// If the developer has slotted in tabs, add event listeners for clicking on the tab
+	//^ If the developer has slotted in tabs, add event listeners for clicking on the tab
 	configureSlottedTabs() {
 		var tabElements = this.querySelectorAll('button');
 		for (let i=0; i < tabElements.length; i++) {
@@ -167,6 +172,22 @@ export default class RwtFileTabs extends HTMLElement {
 			elTab.classList.add('tab-button');
 			elTab.addEventListener('click', this.onClickTab.bind(this));
 		}
+	}
+
+	//^ Inform the document's custom element that it is ready for programmatic use 
+	sendComponentLoaded() {
+		this.isComponentLoaded = true;
+		this.dispatchEvent(new Event('component-loaded', {bubbles: true}));
+	}
+
+	//^ A Promise that resolves when the component is loaded
+	waitOnLoading() {
+		return new Promise((resolve) => {
+			if (this.isComponentLoaded == true)
+				resolve();
+			else
+				this.addEventListener('component-loaded', resolve);
+		});
 	}
 	
 	//-------------------------------------------------------------------------
@@ -215,7 +236,8 @@ export default class RwtFileTabs extends HTMLElement {
 			if (el.id == id) {
 				el.classList.add('current-tab');
 				this.currentTabId = id;
-				this.currentTabValue = this.getTabValue(el);			}
+				this.currentTabValue = this.getTabValue(el);
+			}
 			else
 				el.classList.remove('current-tab');
 		}
@@ -227,7 +249,8 @@ export default class RwtFileTabs extends HTMLElement {
 			if (el.id == id) {
 				el.classList.add('current-tab');
 				this.currentTabId = id;
-				this.currentTabValue = this.getTabValue(el);			}
+				this.currentTabValue = this.getTabValue(el);
+			}
 			else
 				el.classList.remove('current-tab');
 		}
@@ -341,22 +364,6 @@ export default class RwtFileTabs extends HTMLElement {
 	// component messages
 	//-------------------------------------------------------------------------
 
-	// A Promise that resolves when the component is loaded
-	waitOnLoading() {
-		return new Promise((resolve) => {
-			if (this.isComponentLoaded == true)
-				resolve();
-			else
-				this.addEventListener('component-loaded', resolve);
-		});
-	}
-	
-	// inform the document's custom element that it is ready for programmatic use 
-	sendComponentLoaded() {
-		this.isComponentLoaded = true;
-		this.dispatchEvent(new Event('component-loaded', {bubbles: true}));
-	}
-
 	// inform the document's custom element that the current tab has changed
 	sendTabActiviated() {
 		var eventInit = { detail: {
@@ -462,8 +469,8 @@ export default class RwtFileTabs extends HTMLElement {
 		scrollIncrement = Math.min(scrollIncrement, 5);
 		scrollIncrement = Math.max(scrollIncrement, 1);
 		
-		var newLeft = this.scrollBox.offsetLeft + scrollIncrement;
-		if (newLeft < 0) {
+		var newLeft = this.minMaxScroll(this.scrollBox.offsetLeft + scrollIncrement);
+		if (newLeft != this.scrollBox.offsetLeft) {
 			this.scrollBox.style.left = `${newLeft}px`;
 		}
 		else {
@@ -483,8 +490,8 @@ export default class RwtFileTabs extends HTMLElement {
 		scrollIncrement = Math.min(scrollIncrement, 5);
 		scrollIncrement = Math.max(scrollIncrement, 1);
 		
-		var newLeft = this.scrollBox.offsetLeft - scrollIncrement;
-		if (this.scrollableOverflow + newLeft >= 0) {
+		var newLeft = this.minMaxScroll(this.scrollBox.offsetLeft - scrollIncrement);
+		if (newLeft != this.scrollBox.offsetLeft) {
 			this.scrollBox.style.left = `${newLeft}px`;
 		}
 		else {
@@ -520,17 +527,23 @@ export default class RwtFileTabs extends HTMLElement {
 		var scrollIncrement = Math.floor(this.scrollableOverflow / 10);
 		scrollIncrement = Math.max(scrollIncrement, 1);
 			
-		if (event.deltaY > 0) {
-			var newLeft = this.scrollBox.offsetLeft + scrollIncrement;
-			if (newLeft < 0)
-				this.scrollBox.style.left = `${newLeft}px`;
+		if (event.deltaY < 0) {
+			var newLeft = this.minMaxScroll(this.scrollBox.offsetLeft - scrollIncrement);
+			this.scrollBox.style.left = `${newLeft}px`;
 		}
 		else {
-			var newLeft = this.scrollBox.offsetLeft - scrollIncrement;
-			if (this.scrollableOverflow + newLeft >= 0)
-				this.scrollBox.style.left = `${newLeft}px`;
+			var newLeft = this.minMaxScroll(this.scrollBox.offsetLeft + scrollIncrement);
+			this.scrollBox.style.left = `${newLeft}px`;
 		}
+	}
+	
+	minMaxScroll(newLeft) {
+		if (newLeft > 0)
+			newLeft = 0;
+		if (newLeft < -this.scrollableOverflow)
+			newLeft = -this.scrollableOverflow;
+		return newLeft;
 	}
 }
 
-window.customElements.define('rwt-file-tabs', RwtFileTabs);
+window.customElements.define(Static.componentName, RwtFileTabs);
