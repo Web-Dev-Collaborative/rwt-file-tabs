@@ -155,14 +155,14 @@ removed using these methods.
 	<dd>Scroll the tabs all the way to the right. This is only meaningful when there is scrollable overflow.</dd>
 </dl>
 
-### Events
+### Life-cycle events
 
 The component issues life-cycle events.
 
 
 <dl>
 	<dt><code>component-loaded</code></dt>
-	<dd>Sent when the component is fully loaded and ready to be used.</dd>
+	<dd>Sent when the component is fully loaded and ready to be used. As a convenience you can use the <code>waitOnLoading()</code> method which returns a promise that resolves when the <code>component-loaded</code> event is received. Call this asynchronously with <code>await</code>.</dd>
 	<dt><code>tab-activated</code></dt>
 	<dd>Sent when the user switches to a new tab. The <code>event</code> argument has a <code>detail</code> property containing the <code>currentTabId</code> and <code>currentTabValue</code> of the newly activated tab.</dd>
 	<dt><code>tab-closing</code></dt>
