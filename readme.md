@@ -6,10 +6,16 @@
 
 
 
+
+
+
+
 <figure>
 	<img src='/img/components/file-tabs/rwt-file-tabs.png' width='100%' />
 	<figcaption></figcaption>
 </figure>
+
+##### Open Source W3C Web Component
 
 # File Tabs
 
