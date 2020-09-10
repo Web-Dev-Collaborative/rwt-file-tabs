@@ -16,7 +16,7 @@ template {
 
 // ---------- Convert blue document into Github Flavored readme.md ---------- 
 recurse {
-	source '/palau/www/hub.readwritetools.com/components/ghfm/file-tabs.blue'
+	source '/palau/srv/hub.readwritetools.com/components/ghfm/file-tabs.blue'
 	dest   '../readme.md' 
 	overwrite always
 	exec ghfm
