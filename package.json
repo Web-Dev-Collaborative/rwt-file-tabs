@@ -1,7 +1,7 @@
 {
   "name": "rwt-file-tabs",
   "version": "1.0.17",
-  "description": "Switch between active views using a file-tab interface, a W3C standard Web Component",
+  "description": "Switch between active views using a file-tab interface, a standards-based DOM Component",
   "author": "Read Write Tools",
   "license": "MIT",
   "module": "rwt-file-tabs.js",

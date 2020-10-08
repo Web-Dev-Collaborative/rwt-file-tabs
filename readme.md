@@ -15,7 +15,7 @@
 	<figcaption></figcaption>
 </figure>
 
-##### Open Source W3C Web Component
+##### Open Source DOM Component
 
 # File Tabs
 
@@ -29,12 +29,12 @@
 
 <table>
 	<tr><th>Abstract</th></tr>
-	<tr><td>The <span class=product>rwt-file-tabs</span> web component is a thin bar containing named file tabs. It is typically used with apps that allow multiple files to be worked on simultaneously.</td></tr>
+	<tr><td>The <span class=product>rwt-file-tabs</span> DOM component is a thin bar containing named file tabs. It is typically used with apps that allow multiple files to be worked on simultaneously.</td></tr>
 </table>
 
 ### Motivation
 
-The <span>rwt-file-tabs</span> web component can be used in scenarios
+The <span>rwt-file-tabs</span> DOM component can be used in scenarios
 with multiple views or multiple work tasks.
 
 This component can be configured with a fixed set of tabs which are slotted into
@@ -48,11 +48,19 @@ The tab bar occupies a fixed width. When the size of all tabs exceeds that
 width, scroll buttons are automatically enabled.
 
 Dynamic tabs can be <q>closable</q> or not, based on an attribute set on
-the web component by the developer.
+the DOM component by the developer.
+
+#### In the wild
+
+To see an example of this component in use, visit the <a href='https://fiddle.blue/BP-AZB-DIAAH'><span class=bp>BLUE</span><span class=phrase>FIDDLE</span></a>
+website. It uses two components: one vertical and one horizontal. To understand
+what's going on under the hood, use the browser's inspector to view the HTML
+source code and network activity, and follow along as you read this
+documentation.
 
 #### Prerequisites
 
-The <span>rwt-file-tabs</span> web component works in any browser that
+The <span>rwt-file-tabs</span> DOM component works in any browser that
 supports modern W3C standards. Templates are written using <span>BLUE</span><span>
 PHRASE</span> notation, which can be compiled into HTML using the free <a href='https://hub.readwritetools.com/desktop/rwview.blue'>Read Write View</a>
 desktop app. It has no other prerequisites. Distribution and installation are
@@ -77,14 +85,14 @@ on your development computer.
 npm init
 ```
 
-   * Download and install the web component using the command:
+   * Download and install the DOM component using the command:
 ```bash
 npm install rwt-file-tabs
 ```
 
 
-Important note: This web component uses Node.js and NPM and `package.json` as a
-convenient *distribution and installation* mechanism. The web component itself
+Important note: This DOM component uses Node.js and NPM and `package.json` as a
+convenient *distribution and installation* mechanism. The DOM component itself
 does not need them.
 
 #### Installation using Github
@@ -92,14 +100,14 @@ does not need them.
 If you are more comfortable using Github for installation, follow these steps:
 
    * Create a directory `node_modules` in the root of your web project.
-   * Clone the <span>rwt-file-tabs</span> web component into it using the
+   * Clone the <span>rwt-file-tabs</span> DOM component into it using the
       command:
 ```bash
 git clone https://github.com/readwritetools/rwt-file-tabs.git
 ```
 
 
-### Using the web component
+### Using the DOM component
 
 After installation, you need to add a few things to your HTML page to make use
 of it.
@@ -271,9 +279,22 @@ function onResize() {
 window.addEventListener('resize', onResize);
 ```
 
+---
+
+### Reference
+
+
+<table>
+	<tr><td><img src='/img/read-write-hub.png' alt='DOM components logo' width=40 /></td>	<td>Documentation</td> 		<td><a href='https://hub.readwritetools.com/components/file-tabs.blue'>READ WRITE HUB</a></td></tr>
+	<tr><td><img src='/img/git.png' alt='git logo' width=40 /></td>	<td>Source code</td> 			<td><a href='https://github.com/readwritetools/rwt-file-tabs'>github</a></td></tr>
+	<tr><td><img src='/img/dom-components.png' alt='DOM components logo' width=40 /></td>	<td>Component catalog</td> 	<td><a href='https://domcomponents.com/file-tabs.blue'>DOM COMPONENTS</a></td></tr>
+	<tr><td><img src='/img/npm.png' alt='npm logo' width=40 /></td>	<td>Package installation</td> <td><a href='https://www.npmjs.com/package/rwt-file-tabs'>npm</a></td></tr>
+	<tr><td><img src='/img/read-write-stack.png' alt='Read Write Stack logo' width=40 /></td>	<td>Publication venue</td>	<td><a href='https://readwritestack.com/components/file-tabs.blue'>READ WRITE STACK</a></td></tr>
+</table>
+
 ### License
 
-The <span>rwt-file-tabs</span> web component is licensed under the MIT
+The <span>rwt-file-tabs</span> DOM component is licensed under the MIT
 License.
 
 <img src='/img/blue-seal-mit.png' width=80 align=right />
@@ -285,13 +306,4 @@ License.
 	<p>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p>
 	<p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
 </details>
-
-### Availability
-
-
-<table>
-	<tr><td>Source code</td> 			<td><a href='https://github.com/readwritetools/rwt-file-tabs'>github</a></td></tr>
-	<tr><td>Package installation</td> <td><a href='https://www.npmjs.com/package/rwt-file-tabs'>NPM</a></td></tr>
-	<tr><td>Documentation</td> 		<td><a href='https://hub.readwritetools.com/components/file-tabs.blue'>Read Write Hub</a></td></tr>
-</table>
 
