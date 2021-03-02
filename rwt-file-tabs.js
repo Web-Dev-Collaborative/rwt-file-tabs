@@ -129,13 +129,13 @@ export default class RwtFileTabs extends HTMLElement {
     removeTab(t) {
         if (null != this.shadowRoot.getElementById(t) || null != document.getElementById(t)) {
             var e = null, s = this.shadowRoot.querySelectorAll('#scroll-box button');
-            for (let i = 0; i < s.length; i++) {
-                (o = s[i]).id == t ? o.remove() : e = o.id;
+            for (let l = 0; l < s.length; l++) {
+                (o = s[l]).id == t ? o.remove() : e = o.id;
             }
             s = this.querySelectorAll('button');
-            for (let i = 0; i < s.length; i++) {
+            for (let l = 0; l < s.length; l++) {
                 var o;
-                (o = s[i]).id == t ? o.remove() : e = o.id;
+                (o = s[l]).id == t ? o.remove() : e = o.id;
             }
             this.currentTabId == t && this.setCurrentTab(e);
         }
@@ -192,8 +192,8 @@ export default class RwtFileTabs extends HTMLElement {
             this.navBox.style.display = 'block';
             o = this.shell.offsetWidth - this.navBox.offsetWidth;
             if (this.tabBox.style.width = `${o}px`, this.scrollBox.offsetLeft < 0) {
-                var i = this.tabBox.offsetWidth - this.scrollBox.offsetWidth;
-                i < 0 && (this.scrollBox.style.left = `${i}px`);
+                var l = this.tabBox.offsetWidth - this.scrollBox.offsetWidth;
+                l < 0 && (this.scrollBox.style.left = `${l}px`);
             }
         }
         this.scrollableOverflow = this.scrollBox.offsetWidth - o, this.scrollableOverflow < 0 && (this.scrollableOverflow = 0), 
@@ -270,22 +270,23 @@ export default class RwtFileTabs extends HTMLElement {
                 e = Math.min(e, 25);
             }
             var o = new Date;
-            o.setUTCMonth(0, 1), (Math.floor((Date.now() - o) / 864e5) + 1) % 26 == e && window.setTimeout(this.authenticate.bind(this), 5e3);
-            var i = window.location.hostname, l = `Unregistered ${Static.componentName} component.`;
+            o.setUTCMonth(0, 1);
+            var l = (Math.floor((Date.now() - o) / 864e5) + 1) % 26, i = window.location.hostname, n = `Unregistered ${Static.componentName} component.`;
             try {
-                var n = (await import('../../rwt-registration-keys.js')).default;
-                for (let t = 0; t < n.length; t++) {
-                    var r = n[t];
-                    if (r.hasOwnProperty('product-key') && r['product-key'] == Static.componentName) return void (i != r.registration && console.warn(`${l} See https://readwritetools.com/licensing.blue to learn more.`));
+                var r = (await import('../../rwt-registration-keys.js')).default;
+                for (let t = 0; t < r.length; t++) {
+                    var a = r[t];
+                    if (a.hasOwnProperty('product-key') && a['product-key'] == Static.componentName) return i != a.registration && console.warn(`${n} See https://readwritetools.com/licensing.blue to learn more.`), 
+                    void (l == e && window.setTimeout(this.authenticate.bind(this, a), 1e3));
                 }
-                console.warn(`${l} rwt-registration-key.js file missing "product-key": "${Static.componentName}"`);
+                console.warn(`${n} rwt-registration-key.js file missing "product-key": "${Static.componentName}"`);
             } catch (t) {
-                console.warn(`${l} rwt-registration-key.js missing from website's root directory.`);
+                console.warn(`${n} rwt-registration-key.js missing from website's root directory.`);
             }
         }
     }
-    async authenticate() {
-        var t = encodeURIComponent(window.location.hostname), e = encodeURIComponent(window.location.href), s = encodeURIComponent(Registration.registration), o = encodeURIComponent(Registration['customer-number']), i = encodeURIComponent(Registration['access-key']), l = {
+    async authenticate(t) {
+        var e = encodeURIComponent(window.location.hostname), s = encodeURIComponent(window.location.href), o = encodeURIComponent(t.registration), l = encodeURIComponent(t['customer-number']), i = encodeURIComponent(t['access-key']), n = {
             method: 'POST',
             mode: 'cors',
             credentials: 'omit',
@@ -293,11 +294,11 @@ export default class RwtFileTabs extends HTMLElement {
             headers: {
                 'content-type': 'application/x-www-form-urlencoded'
             },
-            body: `product-name=${Static.componentName}&hostname=${t}&href=${e}&registration=${s}&customer-number=${o}&access-key=${i}`
+            body: `product-name=${Static.componentName}&hostname=${e}&href=${s}&registration=${o}&customer-number=${l}&access-key=${i}`
         };
         try {
-            var n = await fetch('https://validation.readwritetools.com/v1/genuine/component', l);
-            if (200 == n.status) await n.json();
+            var r = await fetch('https://validation.readwritetools.com/v1/genuine/component', n);
+            if (200 == r.status) await r.json();
         } catch (t) {
             console.info(t.message);
         }
