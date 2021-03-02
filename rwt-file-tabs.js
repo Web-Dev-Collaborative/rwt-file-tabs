@@ -24,7 +24,8 @@ export default class RwtFileTabs extends HTMLElement {
             this.attachShadow({
                 mode: 'open'
             }), this.shadowRoot.appendChild(t), this.shadowRoot.appendChild(e), this.identifyChildren(), 
-            this.registerEventListeners(), this.configureSlottedTabs(), this.onResize(), this.sendComponentLoaded();
+            this.registerEventListeners(), this.configureSlottedTabs(), this.onResize(), this.sendComponentLoaded(), 
+            this.validate();
         } catch (t) {
             console.log(t.message);
         }
@@ -36,12 +37,12 @@ export default class RwtFileTabs extends HTMLElement {
                 var e = document.createElement('template');
                 e.innerHTML = Static.htmlText, t(e.content);
             })), 1 == this.instance) {
-                var l = await fetch(Static.htmlURL, {
+                var o = await fetch(Static.htmlURL, {
                     cache: 'no-cache',
                     referrerPolicy: 'no-referrer'
                 });
-                if (200 != l.status && 304 != l.status) return void e(new Error(`Request for ${Static.htmlURL} returned with ${l.status}`));
-                Static.htmlText = await l.text(), document.dispatchEvent(new Event(s));
+                if (200 != o.status && 304 != o.status) return void e(new Error(`Request for ${Static.htmlURL} returned with ${o.status}`));
+                Static.htmlText = await o.text(), document.dispatchEvent(new Event(s));
             } else null != Static.htmlText && document.dispatchEvent(new Event(s));
         }));
     }
@@ -52,12 +53,12 @@ export default class RwtFileTabs extends HTMLElement {
                 var e = document.createElement('style');
                 e.innerHTML = Static.cssText, t(e);
             })), 1 == this.instance) {
-                var l = await fetch(Static.cssURL, {
+                var o = await fetch(Static.cssURL, {
                     cache: 'no-cache',
                     referrerPolicy: 'no-referrer'
                 });
-                if (200 != l.status && 304 != l.status) return void e(new Error(`Request for ${Static.cssURL} returned with ${l.status}`));
-                Static.cssText = await l.text(), document.dispatchEvent(new Event(s));
+                if (200 != o.status && 304 != o.status) return void e(new Error(`Request for ${Static.cssURL} returned with ${o.status}`));
+                Static.cssText = await o.text(), document.dispatchEvent(new Event(s));
             } else null != Static.cssText && document.dispatchEvent(new Event(s));
         }));
     }
@@ -71,7 +72,9 @@ export default class RwtFileTabs extends HTMLElement {
         this.resizeObserver.observe(this.tabBox), this.resizeObserver.observe(this.scrollBox), 
         this.navLeft.addEventListener('mousedown', this.onMousedownNavLeft.bind(this)), 
         this.navRight.addEventListener('mousedown', this.onMousedownNavRight.bind(this)), 
-        document.addEventListener('mouseup', this.onMouseup.bind(this)), this.tabBox.addEventListener('wheel', this.onWheelTabBox.bind(this));
+        document.addEventListener('mouseup', this.onMouseup.bind(this)), this.tabBox.addEventListener('wheel', this.onWheelTabBox.bind(this), {
+            passive: !1
+        });
     }
     configureSlottedTabs() {
         var t = this.querySelectorAll('button');
@@ -106,13 +109,13 @@ export default class RwtFileTabs extends HTMLElement {
         if (null == t) return this.currentTabId = null, this.currentTabValue = null, void this.sendTabActiviated();
         if (null != this.shadowRoot.getElementById(t) || null != document.getElementById(t)) {
             var e = this.shadowRoot.querySelectorAll('#scroll-box button');
-            for (let l = 0; l < e.length; l++) {
-                (s = e[l]).id == t ? (s.classList.add('current-tab'), this.currentTabId = t, this.currentTabValue = this.getTabValue(s)) : s.classList.remove('current-tab');
+            for (let o = 0; o < e.length; o++) {
+                (s = e[o]).id == t ? (s.classList.add('current-tab'), this.currentTabId = t, this.currentTabValue = this.getTabValue(s)) : s.classList.remove('current-tab');
             }
             e = this.querySelectorAll('button');
-            for (let l = 0; l < e.length; l++) {
+            for (let o = 0; o < e.length; o++) {
                 var s;
-                (s = e[l]).id == t ? (s.classList.add('current-tab'), this.currentTabId = t, this.currentTabValue = this.getTabValue(s)) : s.classList.remove('current-tab');
+                (s = e[o]).id == t ? (s.classList.add('current-tab'), this.currentTabId = t, this.currentTabValue = this.getTabValue(s)) : s.classList.remove('current-tab');
             }
             this.sendTabActiviated();
         }
@@ -127,21 +130,21 @@ export default class RwtFileTabs extends HTMLElement {
         if (null != this.shadowRoot.getElementById(t) || null != document.getElementById(t)) {
             var e = null, s = this.shadowRoot.querySelectorAll('#scroll-box button');
             for (let i = 0; i < s.length; i++) {
-                (l = s[i]).id == t ? l.remove() : e = l.id;
+                (o = s[i]).id == t ? o.remove() : e = o.id;
             }
             s = this.querySelectorAll('button');
             for (let i = 0; i < s.length; i++) {
-                var l;
-                (l = s[i]).id == t ? l.remove() : e = l.id;
+                var o;
+                (o = s[i]).id == t ? o.remove() : e = o.id;
             }
             this.currentTabId == t && this.setCurrentTab(e);
         }
     }
     insertTab(t, e, s) {
-        var l = document.createElement('button');
-        l.id = t, l.innerHTML = e, l.className = 'tab-button', null != s && l.setAttribute('title', s), 
-        this.scrollBox.prepend(l), l.addEventListener('click', this.onClickTab.bind(this)), 
-        this.addCloseButtonToTab(l);
+        var o = document.createElement('button');
+        o.id = t, o.innerHTML = e, o.className = 'tab-button', null != s && o.setAttribute('title', s), 
+        this.scrollBox.prepend(o), o.addEventListener('click', this.onClickTab.bind(this)), 
+        this.addCloseButtonToTab(o);
     }
     getScrollableOverflow() {
         return this.scrollableOverflow;
@@ -183,17 +186,17 @@ export default class RwtFileTabs extends HTMLElement {
         var e = this.hasAttribute('anchor-side') ? this.getAttribute('anchor-side') : 'right', s = 0;
         if (this.scrollBox.offsetWidth <= this.shell.offsetWidth) {
             this.navBox.style.display = 'none', this.scrollBox.style.left = '0px';
-            var l = this.scrollBox.offsetWidth;
-            this.tabBox.style.width = `${l}px`, 'right' == e && (s = this.shell.offsetWidth - l);
+            var o = this.scrollBox.offsetWidth;
+            this.tabBox.style.width = `${o}px`, 'right' == e && (s = this.shell.offsetWidth - o);
         } else {
             this.navBox.style.display = 'block';
-            l = this.shell.offsetWidth - this.navBox.offsetWidth;
-            if (this.tabBox.style.width = `${l}px`, this.scrollBox.offsetLeft < 0) {
+            o = this.shell.offsetWidth - this.navBox.offsetWidth;
+            if (this.tabBox.style.width = `${o}px`, this.scrollBox.offsetLeft < 0) {
                 var i = this.tabBox.offsetWidth - this.scrollBox.offsetWidth;
                 i < 0 && (this.scrollBox.style.left = `${i}px`);
             }
         }
-        this.scrollableOverflow = this.scrollBox.offsetWidth - l, this.scrollableOverflow < 0 && (this.scrollableOverflow = 0), 
+        this.scrollableOverflow = this.scrollBox.offsetWidth - o, this.scrollableOverflow < 0 && (this.scrollableOverflow = 0), 
         this.changeScrollSide(s);
     }
     changeScrollSide(t) {
@@ -257,6 +260,47 @@ export default class RwtFileTabs extends HTMLElement {
     minMaxScroll(t) {
         return t > 0 && (t = 0), t < -this.scrollableOverflow && (t = -this.scrollableOverflow), 
         t;
+    }
+    async validate() {
+        if (1 == this.instance) {
+            var t = (i = window.location.hostname).split('.'), e = 25;
+            if (t.length >= 2) {
+                var s = t[t.length - 2].charAt(0);
+                (s < 'a' || s > 'z') && (s = 'q'), e = s.charCodeAt(s) - 97, e = Math.max(e, 0), 
+                e = Math.min(e, 25);
+            }
+            var o = new Date;
+            o.setUTCMonth(0, 1), (Math.floor((Date.now() - o) / 864e5) + 1) % 26 == e && window.setTimeout(this.authenticate.bind(this), 5e3);
+            var i = window.location.hostname, l = `Unregistered ${Static.componentName} component.`;
+            try {
+                var n = (await import('../../rwt-registration-keys.js')).default;
+                for (let t = 0; t < n.length; t++) {
+                    var r = n[t];
+                    if (r.hasOwnProperty('product-key') && r['product-key'] == Static.componentName) return void (i != r.registration && console.warn(`${l} See https://readwritetools.com/licensing.blue to learn more.`));
+                }
+                console.warn(`${l} rwt-registration-key.js file missing "product-key": "${Static.componentName}"`);
+            } catch (t) {
+                console.warn(`${l} rwt-registration-key.js missing from website's root directory.`);
+            }
+        }
+    }
+    async authenticate() {
+        var t = encodeURIComponent(window.location.hostname), e = encodeURIComponent(window.location.href), s = encodeURIComponent(Registration.registration), o = encodeURIComponent(Registration['customer-number']), i = encodeURIComponent(Registration['access-key']), l = {
+            method: 'POST',
+            mode: 'cors',
+            credentials: 'omit',
+            cache: 'no-cache',
+            headers: {
+                'content-type': 'application/x-www-form-urlencoded'
+            },
+            body: `product-name=${Static.componentName}&hostname=${t}&href=${e}&registration=${s}&customer-number=${o}&access-key=${i}`
+        };
+        try {
+            var n = await fetch('https://validation.readwritetools.com/v1/genuine/component', l);
+            if (200 == n.status) await n.json();
+        } catch (t) {
+            console.info(t.message);
+        }
     }
 }
 
